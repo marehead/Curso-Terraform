@@ -4,7 +4,7 @@ criar pasta no WSL: AWS_AZURE_REMOTE_STATE_TWO
 code . 
 ls
 cd
-sudo cp /home/fabiosilva/AWS_BUCKET/main.tf /home/fabiosilva/AWS_AZURE_REMOTE_STATE_TWO
+sudo cp /home/mlopes/AWS_BUCKET/main.tf /home/mlopes/AWS_AZURE_REMOTE_STATE_TWO
 (comando permite copiar arquivos de origem para destino)
 [sudo] password for fabiosilva:
 cd AWS_AZURE_REMOTE_STATE_TWO/
