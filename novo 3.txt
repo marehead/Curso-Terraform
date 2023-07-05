@@ -1,0 +1,126 @@
+with
+
+coverageAttributesDetails as (
+
+    with 
+
+units as (
+
+select
+
+    detailsunit.lostprofitcoverageattributesdetailsunitid,
+
+    object(
+
+        'code',
+
+        detailsunit.code,
+
+        'description',
+
+        detailsunit.description
+
+    ) as json,
+
+    row_number() over (partition by detailsunit.lostprofitcoverageattributesdetailsunitid
+
+order by
+
+    detailsunit ."_dat_creation" desc) as "n_row"
+
+from
+
+    open_insurance_trusted.apigateway_datawarehouse_lostprofitcoverageattributesdetailsunit detailsunit 
+
+)
+
+select 
+
+    details.lostprofitcoverageattributesdetailsid,
+
+    row_number() over (partition by details.lostprofitcoverageattributesdetailsid order by details."_dat_creation" desc) as "n_row",
+
+    object(
+
+        'amount',
+
+        details.amount,
+
+        'unit',
+
+        unit.json
+
+    ) as json
+
+from
+
+    open_insurance_trusted.apigateway_datawarehouse_lostprofitcoverageattributesdetails details
+
+inner join units unit on
+
+    unit.lostprofitcoverageattributesdetailsunitid = details.unit
+
+where
+
+    unit.n_row = 1
+
+)
+
+select 
+
+    alimit.lostprofitlimitid,
+
+    row_number() over (partition by alimit.lostprofitlimitid
+
+order by
+
+    alimit."_dat_creation" desc) as "n_row",
+
+    object(
+
+        'type',
+
+        alimit.type,
+
+        'amount',
+
+        nvl((
+
+            select 
+
+                TOP 1
+
+                detail.json
+
+            from coverageAttributesDetails detail 
+
+            where detail.lostprofitcoverageattributesdetailsid = alimit.amount
+
+        ), null),
+
+        'index',
+
+        alimit.index,
+
+        'maxIndexAmount',
+
+        nvl((
+
+            select 
+
+                TOP 1
+
+                detail.json
+
+            from coverageAttributesDetails detail
+
+            where detail.lostprofitcoverageattributesdetailsid = alimit.maxIndexAmount 
+
+        ), null)
+
+    ) as json
+
+from
+
+    open_insurance_trusted.apigateway_datawarehouse_lostprofitlimit alimit
+	
